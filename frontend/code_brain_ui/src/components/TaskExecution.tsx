@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button'
 import { Alert, AlertDescription } from './ui/alert'
-import { Textarea } from './ui/textarea'
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
 import type { Task, PlanStep } from '../types/task'
 import { AnalysisReport } from './AnalysisReport'
@@ -12,16 +11,11 @@ import { TaskPrompt } from './TaskPrompt'
 export function TaskExecution() {
   const { taskId } = useParams()
   const [task, setTask] = useState<Task | null>(null)
-  const [userInput, setUserInput] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [interacting, setInteracting] = useState(false)
 
-  useEffect(() => {
-    fetchTask()
-  }, [taskId])
-
-  const fetchTask = async () => {
+  const fetchTask = useCallback(async () => {
     try {
       setError(null)
       setLoading(true)
@@ -37,7 +31,11 @@ export function TaskExecution() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [taskId])
+
+  useEffect(() => {
+    fetchTask()
+  }, [fetchTask])
 
   const confirmPlan = async () => {
     if (!task) return
