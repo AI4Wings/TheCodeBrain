@@ -7,10 +7,10 @@ import { Textarea } from '../components/ui/textarea'
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
 import type { Task, PlanStep } from '../types/task'
 import { AnalysisReport } from './AnalysisReport'
+import React from 'react'
 
 export function TaskExecution() {
   const { taskId } = useParams()
-  const navigate = useNavigate()
   const [task, setTask] = useState<Task | null>(null)
   const [userInput, setUserInput] = useState('')
   const [loading, setLoading] = useState(true)
