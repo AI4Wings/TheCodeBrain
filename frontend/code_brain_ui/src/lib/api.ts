@@ -1,7 +1,13 @@
 const API_URL = import.meta.env.VITE_API_URL;
 
+// Ensure API_URL ends with a trailing slash
+export const getBaseUrl = () => {
+  const url = API_URL.endsWith('/') ? API_URL : `${API_URL}/`;
+  return `${url}api/v1`;
+};
+
 export async function fetchPlaybooks() {
-  const response = await fetch(`${API_URL}/api/v1/playbooks`);
+  const response = await fetch(`${getBaseUrl()}/playbooks`);
   if (!response.ok) {
     throw new Error('Failed to fetch playbooks');
   }
@@ -9,7 +15,7 @@ export async function fetchPlaybooks() {
 }
 
 export async function createPlaybook(data: { name: string; content: string }) {
-  const response = await fetch(`${API_URL}/api/v1/playbooks`, {
+  const response = await fetch(`${getBaseUrl()}/playbooks`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -23,7 +29,7 @@ export async function createPlaybook(data: { name: string; content: string }) {
 }
 
 export async function createTask(description: string, playbookId?: string) {
-  const response = await fetch(`${API_URL}/api/v1/tasks`, {
+  const response = await fetch(`${getBaseUrl()}/tasks`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
