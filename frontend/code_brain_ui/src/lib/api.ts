@@ -1,4 +1,8 @@
-export const API_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL || '';
+const API_PREFIX = import.meta.env.VITE_API_PREFIX || '/api/v1';
+
+// Construct the full API URL
+export const API_URL = `${BASE_URL}${API_PREFIX}`;
 
 export async function fetchPlaybooks() {
   const response = await fetch(`${API_URL}/playbooks`);
