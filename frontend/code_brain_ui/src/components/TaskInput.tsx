@@ -3,33 +3,53 @@ import { Textarea } from '../components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
-import type { Playbook } from '../types/playbook';
+import { Alert, AlertDescription } from '../components/ui/alert'
+import { Loader2 } from 'lucide-react'
+import type { Playbook } from '../types/playbook'
+import { fetchPlaybooks, createTask } from '../lib/api'
 
 export function TaskInput() {
-  const [taskDescription, setTaskDescription] = useState('');
-  const [selectedPlaybook, setSelectedPlaybook] = useState('');
-  const [playbooks, setPlaybooks] = useState<Playbook[]>([]);
+  const [taskDescription, setTaskDescription] = useState('')
+  const [selectedPlaybook, setSelectedPlaybook] = useState('')
+  const [playbooks, setPlaybooks] = useState<Playbook[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    const fetchPlaybooks = async () => {
+    const loadPlaybooks = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/playbooks`);
-        if (response.ok) {
-          const data = await response.json();
-          setPlaybooks(data);
-        }
-      } catch (error) {
-        console.error('Failed to fetch playbooks:', error);
+        setError(null)
+        const data = await fetchPlaybooks()
+        setPlaybooks(data)
+      } catch (err) {
+        setError('Failed to load playbooks. Please try again.')
+        console.error('Error loading playbooks:', err)
       }
-    };
+    }
 
-    fetchPlaybooks();
-  }, []);
+    loadPlaybooks()
+  }, [])
 
   const handleSubmit = async () => {
-    // TODO: Implement task submission
-    console.log('Task:', { taskDescription, selectedPlaybook });
-  };
+    if (!taskDescription.trim()) {
+      setError('Please enter a task description')
+      return
+    }
+
+    try {
+      setError(null)
+      setLoading(true)
+      await createTask(taskDescription, selectedPlaybook || undefined)
+      setTaskDescription('')
+      setSelectedPlaybook('')
+      // TODO: Add success notification and navigation to task execution page
+    } catch (err) {
+      setError('Failed to create task. Please try again.')
+      console.error('Error creating task:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
     <Card className="w-full max-w-3xl mx-auto mt-8">
@@ -37,6 +57,12 @@ export function TaskInput() {
         <CardTitle>Create New Task</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
+
         <div className="space-y-2">
           <label className="text-sm font-medium">Task Description</label>
           <Textarea
@@ -44,12 +70,17 @@ export function TaskInput() {
             value={taskDescription}
             onChange={(e) => setTaskDescription(e.target.value)}
             className="min-h-32"
+            disabled={loading}
           />
         </div>
         
         <div className="space-y-2">
           <label className="text-sm font-medium">Select Playbook (Optional)</label>
-          <Select value={selectedPlaybook} onValueChange={setSelectedPlaybook}>
+          <Select 
+            value={selectedPlaybook} 
+            onValueChange={setSelectedPlaybook}
+            disabled={loading}
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select a playbook..." />
             </SelectTrigger>
@@ -63,8 +94,19 @@ export function TaskInput() {
           </Select>
         </div>
 
-        <Button onClick={handleSubmit} className="w-full">
-          Create Task
+        <Button 
+          onClick={handleSubmit} 
+          className="w-full"
+          disabled={loading}
+        >
+          {loading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Creating Task...
+            </>
+          ) : (
+            'Create Task'
+          )}
         </Button>
       </CardContent>
     </Card>
