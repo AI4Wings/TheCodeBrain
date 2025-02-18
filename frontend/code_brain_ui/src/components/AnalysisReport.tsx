@@ -31,16 +31,16 @@ export function AnalysisReport({ results }: AnalysisReportProps) {
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Overall Status */}
-        <Alert variant={hasUIImpacts ? "warning" : "success"}>
+        <Alert variant={hasUIImpacts ? "destructive" : "default"}>
           <AlertDescription className="flex items-center space-x-2">
             {hasUIImpacts ? (
               <>
-                <AlertTriangle className="h-4 w-4 text-warning" />
+                <AlertTriangle className="h-4 w-4 text-red-500" />
                 <span>UI changes detected - compatibility testing recommended</span>
               </>
             ) : (
               <>
-                <CheckCircle2 className="h-4 w-4 text-success" />
+                <CheckCircle2 className="h-4 w-4 text-green-500" />
                 <span>No significant UI impacts detected</span>
               </>
             )}
