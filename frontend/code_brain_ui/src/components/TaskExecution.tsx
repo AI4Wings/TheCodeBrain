@@ -14,6 +14,7 @@ export function TaskExecution() {
   const [userInput, setUserInput] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [interacting, setInteracting] = useState(false)
 
   useEffect(() => {
     fetchTask()
@@ -145,11 +146,49 @@ export function TaskExecution() {
             disabled={loading || task.status === 'completed'}
           />
           <Button
-            onClick={() => {/* TODO: Implement interaction handling */}}
-            disabled={loading || !userInput.trim() || task.status === 'completed'}
+            onClick={async () => {
+              if (!userInput.trim()) return;
+              
+              try {
+                setInteracting(true);
+                setError(null);
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/tasks/${taskId}/interact`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ input: userInput }),
+                });
+                
+                if (!response.ok) {
+                  throw new Error('Failed to send interaction');
+                }
+                
+                const updatedTask = await response.json();
+                setTask(updatedTask);
+                setUserInput('');
+                
+                if (updatedTask.status === 'completed') {
+                  navigate('/');
+                }
+              } catch (err) {
+                setError('Failed to send interaction. Please try again.');
+                console.error('Error sending interaction:', err);
+              } finally {
+                setInteracting(false);
+              }
+            }}
+            disabled={loading || interacting || !userInput.trim() || task.status === 'completed'}
             className="w-full mt-2"
           >
-            Send
+            {interacting ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Sending...
+              </>
+            ) : (
+              'Send'
+            )}
           </Button>
         </div>
       </CardContent>
