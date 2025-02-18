@@ -8,6 +8,20 @@ export async function fetchPlaybooks() {
   return response.json();
 }
 
+export async function createPlaybook(data: { name: string; content: string }) {
+  const response = await fetch(`${API_URL}/api/v1/playbooks`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to create playbook');
+  }
+  return response.json();
+}
+
 export async function createTask(description: string, playbookId?: string) {
   const response = await fetch(`${API_URL}/api/v1/tasks`, {
     method: 'POST',
