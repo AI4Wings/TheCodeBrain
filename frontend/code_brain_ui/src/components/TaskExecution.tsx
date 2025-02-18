@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from '../components/ui/alert'
 import { Textarea } from '../components/ui/textarea'
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
 import type { Task, PlanStep } from '../types/task'
+import { AnalysisReport } from './AnalysisReport'
 
 export function TaskExecution() {
   const { taskId } = useParams()
@@ -136,61 +137,66 @@ export function TaskExecution() {
           </div>
         )}
 
-        <div className="space-y-2">
-          <h3 className="font-medium">Interaction</h3>
-          <Textarea
-            placeholder="Enter additional information or respond to queries..."
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            className="min-h-32"
-            disabled={loading || task.status === 'completed'}
-          />
-          <Button
-            onClick={async () => {
-              if (!userInput.trim()) return;
-              
-              try {
-                setInteracting(true);
-                setError(null);
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/tasks/${taskId}/interact`, {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/json',
-                  },
-                  body: JSON.stringify({ input: userInput }),
-                });
+        {task.results && task.status === 'completed' ? (
+          <AnalysisReport results={task.results} />
+        ) : (
+          <div className="space-y-2">
+            <h3 className="font-medium">Interaction</h3>
+            <Textarea
+              placeholder="Enter additional information or respond to queries..."
+              value={userInput}
+              onChange={(e) => setUserInput(e.target.value)}
+              className="min-h-32"
+              disabled={loading || task.status === 'completed'}
+            />
+            <Button
+              onClick={async () => {
+                if (!userInput.trim()) return;
                 
-                if (!response.ok) {
-                  throw new Error('Failed to send interaction');
+                try {
+                  setInteracting(true);
+                  setError(null);
+                  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/tasks/${taskId}/interact`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ input: userInput }),
+                  });
+                  
+                  if (!response.ok) {
+                    throw new Error('Failed to send interaction');
+                  }
+                  
+                  const updatedTask = await response.json();
+                  setTask(updatedTask);
+                  setUserInput('');
+                  
+                  if (updatedTask.status === 'completed') {
+                    // Don't navigate away, show the report instead
+                    setUserInput('');
+                  }
+                } catch (err) {
+                  setError('Failed to send interaction. Please try again.');
+                  console.error('Error sending interaction:', err);
+                } finally {
+                  setInteracting(false);
                 }
-                
-                const updatedTask = await response.json();
-                setTask(updatedTask);
-                setUserInput('');
-                
-                if (updatedTask.status === 'completed') {
-                  navigate('/');
-                }
-              } catch (err) {
-                setError('Failed to send interaction. Please try again.');
-                console.error('Error sending interaction:', err);
-              } finally {
-                setInteracting(false);
-              }
-            }}
-            disabled={loading || interacting || !userInput.trim() || task.status === 'completed'}
-            className="w-full mt-2"
-          >
-            {interacting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              'Send'
-            )}
-          </Button>
-        </div>
+              }}
+              disabled={loading || interacting || !userInput.trim() || task.status === 'completed'}
+              className="w-full mt-2"
+            >
+              {interacting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                'Send'
+              )}
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   )
