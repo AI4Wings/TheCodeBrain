@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from .routers import playbooks
+from .routers import playbooks, tasks
 
 app = FastAPI(title="CodeBrain API")
 
@@ -15,6 +15,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(playbooks.router, prefix="/api/v1", tags=["playbooks"])
+app.include_router(tasks.router, prefix="/api/v1", tags=["tasks"])
 
 @app.get("/healthz")
 async def healthz():
