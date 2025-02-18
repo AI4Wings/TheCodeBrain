@@ -1,0 +1,6 @@
+fastapi[standard]>=0.115.8
+psycopg[binary]>=3.2.4
+langgraph>=0.2.73
+langchain>=0.3.19
+uvicorn>=0.27.1
+python-dotenv>=1.0.1
