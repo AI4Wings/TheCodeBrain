@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Alert, AlertDescription } from '../components/ui/alert'
 import { Loader2 } from 'lucide-react'
 import type { Playbook } from '../types/playbook'
+import { useNavigate } from 'react-router-dom'
 import { fetchPlaybooks, createTask } from '../lib/api'
 
 export function TaskInput() {
@@ -30,6 +31,8 @@ export function TaskInput() {
     loadPlaybooks()
   }, [])
 
+  const navigate = useNavigate()
+  
   const handleSubmit = async () => {
     if (!taskDescription.trim()) {
       setError('Please enter a task description')
@@ -39,10 +42,10 @@ export function TaskInput() {
     try {
       setError(null)
       setLoading(true)
-      await createTask(taskDescription, selectedPlaybook || undefined)
+      const task = await createTask(taskDescription, selectedPlaybook || undefined)
       setTaskDescription('')
       setSelectedPlaybook('')
-      // TODO: Add success notification and navigation to task execution page
+      navigate(`/tasks/${task.id}`)
     } catch (err) {
       setError('Failed to create task. Please try again.')
       console.error('Error creating task:', err)

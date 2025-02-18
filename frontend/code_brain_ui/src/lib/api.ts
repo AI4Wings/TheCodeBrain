@@ -36,5 +36,6 @@ export async function createTask(description: string, playbookId?: string) {
   if (!response.ok) {
     throw new Error('Failed to create task');
   }
-  return response.json();
+  const task = await response.json();
+  return task;
 }
