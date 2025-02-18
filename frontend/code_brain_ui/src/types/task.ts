@@ -20,6 +20,11 @@ export interface AnalysisResults {
   status: string;
 }
 
+interface Message {
+  role: 'system' | 'user';
+  content: string;
+}
+
 export interface Task {
   id: string;
   description: string;
@@ -28,6 +33,7 @@ export interface Task {
   created_at: string;
   plan?: Plan;
   results?: AnalysisResults;
+  messages?: Message[];
 }
 
 export interface TaskCreate {

@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
-import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
-import { Button } from '../components/ui/button'
-import { Alert, AlertDescription } from '../components/ui/alert'
-import { Textarea } from '../components/ui/textarea'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Button } from './ui/button'
+import { Alert, AlertDescription } from './ui/alert'
+import { Textarea } from './ui/textarea'
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
 import type { Task, PlanStep } from '../types/task'
-import { AnalysisReport } from '../components/AnalysisReport'
+import { AnalysisReport } from './AnalysisReport'
+import { TaskPrompt } from './TaskPrompt'
 
 export function TaskExecution() {
   const { taskId } = useParams()
@@ -136,66 +137,40 @@ export function TaskExecution() {
           </div>
         )}
 
-        {task.results && task.status === 'completed' ? (
+        {task.results && task.status === 'completed' && 'ui_impacts' in task.results ? (
           <AnalysisReport results={task.results} />
-        ) : (
-          <div className="space-y-2">
-            <h3 className="font-medium">Interaction</h3>
-            <Textarea
-              placeholder="Enter additional information or respond to queries..."
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              className="min-h-32"
-              disabled={loading || task.status === 'completed'}
-            />
-            <Button
-              onClick={async () => {
-                if (!userInput.trim()) return;
+        ) : task.messages && task.messages.length > 0 ? (
+          <TaskPrompt
+            message={task.messages[task.messages.length - 1].content}
+            onSubmit={async (input) => {
+              try {
+                setInteracting(true);
+                setError(null);
+                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/tasks/${taskId}/interact`, {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ input }),
+                });
                 
-                try {
-                  setInteracting(true);
-                  setError(null);
-                  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/tasks/${taskId}/interact`, {
-                    method: 'POST',
-                    headers: {
-                      'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ input: userInput }),
-                  });
-                  
-                  if (!response.ok) {
-                    throw new Error('Failed to send interaction');
-                  }
-                  
-                  const updatedTask = await response.json();
-                  setTask(updatedTask);
-                  setUserInput('');
-                  
-                  if (updatedTask.status === 'completed') {
-                    // Don't navigate away, show the report instead
-                    setUserInput('');
-                  }
-                } catch (err) {
-                  setError('Failed to send interaction. Please try again.');
-                  console.error('Error sending interaction:', err);
-                } finally {
-                  setInteracting(false);
+                if (!response.ok) {
+                  throw new Error('Failed to send interaction');
                 }
-              }}
-              disabled={loading || interacting || !userInput.trim() || task.status === 'completed'}
-              className="w-full mt-2"
-            >
-              {interacting ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Sending...
-                </>
-              ) : (
-                'Send'
-              )}
-            </Button>
-          </div>
-        )}
+                
+                const updatedTask = await response.json();
+                setTask(updatedTask);
+              } catch (err) {
+                setError('Failed to send interaction. Please try again.');
+                console.error('Error sending interaction:', err);
+              } finally {
+                setInteracting(false);
+              }
+            }}
+            loading={interacting}
+            error={error}
+          />
+        ) : null}
       </CardContent>
     </Card>
   )
