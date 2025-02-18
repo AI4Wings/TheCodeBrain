@@ -6,6 +6,7 @@ from langgraph.prebuilt import ToolNode
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph.message import add_messages
 from langgraph.types import Command, interrupt
+from langchain.tools import tool
 
 class State(TypedDict):
     messages: Annotated[list, add_messages]
