@@ -6,7 +6,7 @@ import { Alert, AlertDescription } from '../components/ui/alert'
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '../components/ui/alert-dialog'
 import { Loader2, Trash2 } from 'lucide-react'
 import type { Playbook } from '../types/playbook'
-import { fetchPlaybooks, getBaseUrl } from '../lib/api'
+import { fetchPlaybooks, API_URL } from '../lib/api'
 
 export function PlaybookList() {
   const navigate = useNavigate()
@@ -34,7 +34,7 @@ export function PlaybookList() {
   const handleDelete = async (id: string) => {
     try {
       setError(null)
-      await fetch(`${getBaseUrl()}/playbooks/${id}`, {
+      await fetch(`${API_URL}/playbooks/${id}`, {
         method: 'DELETE',
       })
       await loadPlaybooks()
