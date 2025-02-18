@@ -1,4 +1,4 @@
-from typing import Dict, List, TypedDict, Annotated
+from typing import Dict, List, TypedDict, Annotated, Optional
 from datetime import datetime
 import uuid
 from langgraph.graph import StateGraph, END
