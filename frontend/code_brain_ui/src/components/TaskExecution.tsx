@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Alert, AlertDescription } from '../components/ui/alert'
 import { Textarea } from '../components/ui/textarea'
 import { Loader2, CheckCircle2, XCircle } from 'lucide-react'
 import type { Task, PlanStep } from '../types/task'
-import { AnalysisReport } from './AnalysisReport'
-import React from 'react'
+import { AnalysisReport } from '../components/AnalysisReport'
 
 export function TaskExecution() {
   const { taskId } = useParams()
