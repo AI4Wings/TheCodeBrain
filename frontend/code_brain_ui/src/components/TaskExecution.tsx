@@ -1,3 +1,4 @@
+import { API_URL } from '../lib/api'
 import { useState, useEffect, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
@@ -19,7 +20,7 @@ export function TaskExecution() {
     try {
       setError(null)
       setLoading(true)
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/tasks/${taskId}`)
+      const response = await fetch(`${API_URL}/api/v1/tasks/${taskId}`)
       if (!response.ok) {
         throw new Error('Failed to fetch task')
       }
@@ -43,7 +44,7 @@ export function TaskExecution() {
     try {
       setError(null)
       setLoading(true)
-      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/tasks/${taskId}/confirm`, {
+      const response = await fetch(`${API_URL}/api/v1/tasks/${taskId}/confirm`, {
         method: 'POST',
       })
       if (!response.ok) {
@@ -144,7 +145,7 @@ export function TaskExecution() {
               try {
                 setInteracting(true);
                 setError(null);
-                const response = await fetch(`${import.meta.env.VITE_API_URL}/api/v1/tasks/${taskId}/interact`, {
+                const response = await fetch(`${API_URL}/api/v1/tasks/${taskId}/interact`, {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
