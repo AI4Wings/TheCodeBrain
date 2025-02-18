@@ -2,8 +2,10 @@ from fastapi import APIRouter, HTTPException
 from typing import List, Optional
 from datetime import datetime
 import uuid
+import os
 from ..models.task import Task, TaskCreate, TaskStatus
 from ..agents.task_planner import execute_task_planning
+from ..agents.analysis_agent import execute_code_analysis
 
 router = APIRouter()
 
@@ -42,6 +44,26 @@ async def confirm_task(task_id: str):
         if task.id == task_id:
             if task.status != TaskStatus.AWAITING_CONFIRMATION:
                 raise HTTPException(status_code=400, detail="Task is not awaiting confirmation")
+            
+            # Check if this is a code analysis task
+            if "github.com" in task.description and "/commit/" in task.description:
+                # Extract commit URL and run analysis
+                commit_url = task.description.split("github.com")[-1].strip()
+                if not commit_url.startswith("http"):
+                    commit_url = f"https://github.com{commit_url}"
+                
+                analysis_result = execute_code_analysis(
+                    task_id,
+                    commit_url,
+                    os.path.join(os.getcwd(), "analysis_workspace")
+                )
+                
+                task.results = {
+                    "ui_impacts": analysis_result["ui_impacts"],
+                    "compatibility_requirements": analysis_result["compatibility_requirements"],
+                    "status": analysis_result["status"]
+                }
+            
             task.status = TaskStatus.IN_PROGRESS
             return task
     raise HTTPException(status_code=404, detail="Task not found")
