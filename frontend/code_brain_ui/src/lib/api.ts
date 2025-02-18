@@ -1,7 +1,10 @@
-export const API_URL = import.meta.env.VITE_API_URL;
+const BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+// Use the base URL directly since the API prefix is already included in the backend URL
+export const API_URL = BASE_URL;
 
 export async function fetchPlaybooks() {
-  const response = await fetch(`${API_URL}/playbooks`);
+  const response = await fetch(`${API_URL}/api/v1/playbooks`);
   if (!response.ok) {
     throw new Error('Failed to fetch playbooks');
   }
@@ -9,7 +12,7 @@ export async function fetchPlaybooks() {
 }
 
 export async function createPlaybook(data: { name: string; content: string }) {
-  const response = await fetch(`${API_URL}/playbooks`, {
+  const response = await fetch(`${API_URL}/api/v1/playbooks`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -23,7 +26,7 @@ export async function createPlaybook(data: { name: string; content: string }) {
 }
 
 export async function createTask(description: string, playbookId?: string) {
-  const response = await fetch(`${API_URL}/tasks`, {
+  const response = await fetch(`${API_URL}/api/v1/tasks`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
