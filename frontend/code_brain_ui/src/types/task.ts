@@ -9,6 +9,17 @@ export interface Plan {
   status: string;
 }
 
+export interface AnalysisResults {
+  ui_impacts: Record<string, string[]>;
+  compatibility_requirements: {
+    system_versions: string[];
+    screen_resolutions: string[];
+    orientations: string[];
+    device_types: string[];
+  };
+  status: string;
+}
+
 export interface Task {
   id: string;
   description: string;
@@ -16,7 +27,7 @@ export interface Task {
   status: 'pending' | 'planning' | 'awaiting_confirmation' | 'in_progress' | 'completed' | 'failed';
   created_at: string;
   plan?: Plan;
-  results?: Record<string, any>;
+  results?: AnalysisResults;
 }
 
 export interface TaskCreate {
